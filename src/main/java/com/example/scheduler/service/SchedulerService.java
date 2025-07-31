@@ -126,4 +126,21 @@ public class SchedulerService {
         );
     }
 
+    // 일정 삭제
+    @Transactional
+    public void delete(@PathVariable Long id, SchedulerRequest schedulerRequest) {
+
+        // 일정 찾기 (null 값이면 NOT_FOUND)
+        Scheduler schedule = schedulerRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일정을 찾을 수 없습니다"));
+
+        // 비밀번호 체크 (값이 다르면 BAD_REQUEST)
+        if (!schedulerRequest.getPassword().equals(schedule.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다");
+        }
+
+        // 해당 일정 삭제
+        schedulerRepository.deleteById(id);
+    }
+
 }
