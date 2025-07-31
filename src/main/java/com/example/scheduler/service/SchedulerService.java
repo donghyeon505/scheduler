@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -88,4 +89,41 @@ public class SchedulerService {
         );
 
     }
+
+    // 일정 수정
+    @Transactional
+    public SchedulerResponse updateSchedule(@PathVariable Long id, SchedulerRequest schedulerRequest) {
+
+        // 일정 찾기 (null 값이면 NOT_FOUND)
+        Scheduler schedule = schedulerRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일정을 찾을 수 없습니다"));
+
+        // 비밀번호 체크 (값이 다르면 BAD_REQUEST)
+        if (!schedulerRequest.getPassword().equals(schedule.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다");
+        }
+
+        // 필요 값 체크 (null 값이면 BAD_REQUEST)
+        if (schedulerRequest.getTitle() == null || schedulerRequest.getContents() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다");
+        }
+
+        // 일정 제목, 내용 수정
+        schedule.setTitle(schedulerRequest.getTitle());
+        schedule.setContents(schedulerRequest.getContents());
+
+        // 수정된 값 DB에 반영
+        schedulerRepository.flush();
+
+        // 수정된 내용 반환
+        return new SchedulerResponse(
+                schedule.getId(),
+                schedule.getTitle(),
+                schedule.getContents(),
+                schedule.getWriter(),
+                schedule.getCreatedAt(),
+                schedule.getModifiedAt()
+        );
+    }
+
 }
