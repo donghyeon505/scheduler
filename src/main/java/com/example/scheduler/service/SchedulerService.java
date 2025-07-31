@@ -34,14 +34,7 @@ public class SchedulerService {
         Scheduler savedScheduler = schedulerRepository.save(scheduler);
 
         // 저장된 일정 정보 반환 (비밀번호 제외)
-        return new SchedulerResponse(
-                savedScheduler.getId(),
-                savedScheduler.getTitle(),
-                savedScheduler.getContents(),
-                savedScheduler.getWriter(),
-                savedScheduler.getCreatedAt(),
-                savedScheduler.getModifiedAt()
-        );
+        return toResponse(savedScheduler);
     }
 
     // 일정 조회
@@ -56,14 +49,7 @@ public class SchedulerService {
 
         // 받은 정보를 Response 객체로 변환해서 저장
         for (Scheduler scheduler : schedules) {
-            schedulerResponses.add(new SchedulerResponse(
-                    scheduler.getId(),
-                    scheduler.getTitle(),
-                    scheduler.getContents(),
-                    scheduler.getWriter(),
-                    scheduler.getCreatedAt(),
-                    scheduler.getModifiedAt()
-            ));
+            schedulerResponses.add(toResponse(scheduler));
         }
 
         // 조회(변환)된 리스트 반환
@@ -74,19 +60,11 @@ public class SchedulerService {
     @Transactional (readOnly = true)
     public SchedulerResponse findById(Long id) {
 
-        // 일정 찾기 (null 값이면 NOT_FOUND)
-        Scheduler schedule = schedulerRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일정을 찾을 수 없습니다"));
+        // 일정 찾기
+        Scheduler schedule = find(id);
 
         // 조회된 일정 반환
-        return new SchedulerResponse(
-                schedule.getId(),
-                schedule.getTitle(),
-                schedule.getContents(),
-                schedule.getWriter(),
-                schedule.getCreatedAt(),
-                schedule.getModifiedAt()
-        );
+        return toResponse(schedule);
 
     }
 
@@ -94,16 +72,13 @@ public class SchedulerService {
     @Transactional
     public SchedulerResponse updateSchedule(@PathVariable Long id, SchedulerRequest schedulerRequest) {
 
-        // 일정 찾기 (null 값이면 NOT_FOUND)
-        Scheduler schedule = schedulerRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일정을 찾을 수 없습니다"));
+        // 일정 찾기
+        Scheduler schedule = find(id);
 
-        // 비밀번호 체크 (값이 다르면 BAD_REQUEST)
-        if (!schedulerRequest.getPassword().equals(schedule.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다");
-        }
+        // 비밀번호 체크
+        checkPassword(schedulerRequest, schedule);
 
-        // 필요 값 체크 (null 값이면 BAD_REQUEST)
+        // 필요 값 체크
         if (schedulerRequest.getTitle() == null || schedulerRequest.getContents() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다");
         }
@@ -116,31 +91,48 @@ public class SchedulerService {
         schedulerRepository.flush();
 
         // 수정된 내용 반환
-        return new SchedulerResponse(
-                schedule.getId(),
-                schedule.getTitle(),
-                schedule.getContents(),
-                schedule.getWriter(),
-                schedule.getCreatedAt(),
-                schedule.getModifiedAt()
-        );
+        return toResponse(schedule);
     }
 
     // 일정 삭제
     @Transactional
     public void delete(@PathVariable Long id, SchedulerRequest schedulerRequest) {
 
-        // 일정 찾기 (null 값이면 NOT_FOUND)
-        Scheduler schedule = schedulerRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일정을 찾을 수 없습니다"));
+        // 일정 찾기
+        Scheduler schedule = find(id);
 
-        // 비밀번호 체크 (값이 다르면 BAD_REQUEST)
-        if (!schedulerRequest.getPassword().equals(schedule.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다");
-        }
+        // 비밀번호 체크
+        checkPassword(schedulerRequest, schedule);
 
         // 해당 일정 삭제
         schedulerRepository.deleteById(id);
     }
 
+
+    // ==== 헬퍼 메서드 ====
+
+    // 정보 반환
+    private SchedulerResponse toResponse(Scheduler scheduler) {
+        return new SchedulerResponse(
+                scheduler.getId(),
+                scheduler.getTitle(),
+                scheduler.getContents(),
+                scheduler.getWriter(),
+                scheduler.getCreatedAt(),
+                scheduler.getModifiedAt()
+        );
+    }
+
+    // 일정 찾기 (null 값이면 NOT_FOUND)
+    private Scheduler find(Long id) {
+        return schedulerRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일정을 찾을 수 없습니다"));
+    }
+
+    // 비밀번호 체크 (값이 다르면 BAD_REQUEST)
+    private void checkPassword(SchedulerRequest schedulerRequest, Scheduler schedule) {
+        if (!schedulerRequest.getPassword().equals(schedule.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다");
+        }
+    }
 }
