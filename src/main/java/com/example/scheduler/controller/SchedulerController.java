@@ -20,4 +20,15 @@ public class SchedulerController {
     public SchedulerResponse createSchedule(@RequestBody SchedulerRequest schedulerRequest) {
         return schedulerService.save(schedulerRequest);
     }
+
+    // 일정 조회
+    @GetMapping
+    public List<SchedulerResponse> findAll() {
+        return schedulerService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public SchedulerResponse findById(@PathVariable Long id) {
+        return schedulerService.findById(id);
+    }
 }
