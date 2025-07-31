@@ -123,7 +123,11 @@
 
 #### -----Request-----
 - path parameter: id (예시: 1)
-
+```JSON
+{
+  "password": "1234"
+}
+```
 
 
 ## ERD
