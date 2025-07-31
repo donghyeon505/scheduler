@@ -27,8 +27,15 @@ public class SchedulerController {
         return schedulerService.findAll();
     }
 
+    // 선택 일정 조회
     @GetMapping("/{id}")
     public SchedulerResponse findById(@PathVariable Long id) {
         return schedulerService.findById(id);
+    }
+
+    // 일정 수정
+    @PatchMapping("/{id}")
+    public SchedulerResponse updateSchedule(@PathVariable Long id, @RequestBody SchedulerRequest schedulerRequest) {
+        return schedulerService.updateSchedule(id, schedulerRequest);
     }
 }
