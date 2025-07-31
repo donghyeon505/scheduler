@@ -31,6 +31,8 @@ public class SchedulerService {
                 schedulerRequest.getWriter(),
                 schedulerRequest.getPassword()
         );
+
+        // DB에 저장
         Scheduler savedScheduler = schedulerRepository.save(scheduler);
 
         // 저장된 일정 정보 반환 (비밀번호 제외)
