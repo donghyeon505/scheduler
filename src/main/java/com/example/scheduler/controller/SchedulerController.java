@@ -20,7 +20,6 @@ public class SchedulerController {
     public SchedulerResponse createSchedule(@RequestBody SchedulerRequest schedulerRequest) {
         return schedulerService.save(schedulerRequest);
     }
-
     // 일정 조회
     @GetMapping
     public List<SchedulerResponse> findAll() {
@@ -37,5 +36,10 @@ public class SchedulerController {
     @PatchMapping("/{id}")
     public SchedulerResponse updateSchedule(@PathVariable Long id, @RequestBody SchedulerRequest schedulerRequest) {
         return schedulerService.updateSchedule(id, schedulerRequest);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteSchedule(@PathVariable Long id, @RequestBody SchedulerRequest schedulerRequest) {
+        schedulerService.delete(id, schedulerRequest);
     }
 }
