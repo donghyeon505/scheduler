@@ -12,7 +12,7 @@
 | writer     | String   | O    | 등록자 이름            |
 | password   | String   | O    | 수정/삭제용 비밀번호   |
 | createdAt  | datetime | X    | 등록일 (자동 생성)     |
-| updatedAt  | datetime | X    | 수정일 (자동 생성)     |
+| modifiedAt | datetime | X    | 수정일 (자동 생성)     |
 
 ### 기능
 
@@ -46,7 +46,7 @@
   "contents": "세션 내용",
   "writer": "튜터님",
   "createdAt": "2025-07-31T00:00:00",
-  "updatedAt": "2025-07-31T00:00:00"
+  "modifiedAt": "2025-07-31T00:00:00"
 }
 ```
 
@@ -62,7 +62,7 @@
     "contents": "세션 내용",
     "writer": "튜터님",
     "createdAt": "2025-07-31T00:00:00",
-    "updatedAt": "2025-07-31T00:00:00"
+    "modifiedAt": "2025-07-31T00:00:00"
   },
   {
     "id": 2,
@@ -70,7 +70,7 @@
     "contents": "세션 내용2",
     "writer": "튜터님2",
     "createdAt": "2025-07-31T01:00:00",
-    "updatedAt": "2025-07-31T01:00:00"
+    "modifiedAt": "2025-07-31T01:00:00"
   }
 ]
 ```
@@ -89,7 +89,7 @@
   "contents": "세션 내용",
   "writer": "튜터님",
   "createdAt": "2025-07-31T00:00:00",
-  "updatedAt": "2025-07-31T00:00:00"
+  "modifiedAt": "2025-07-31T00:00:00"
 }
 ```
 
@@ -113,7 +113,7 @@
   "contents": "수정된 세션 내용",
   "writer": "튜터님",
   "createdAt": "2025-07-31T00:00:00",
-  "updatedAt": "2025-07-31T01:00:00"
+  "modifiedAt": "2025-07-31T01:00:00"
 }
 ```
 
@@ -126,6 +126,8 @@
 
 
 ## ERD
+<img width="216" height="259" alt="{9602322C-3E05-428B-A07C-1676BEBBD75C}" src="https://github.com/user-attachments/assets/47b9687f-febd-4aaa-941f-4a3f0d9e469c" />
+
 
 
 
