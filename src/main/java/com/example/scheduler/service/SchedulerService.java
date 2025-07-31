@@ -4,9 +4,9 @@ import com.example.scheduler.dto.SchedulerRequest;
 import com.example.scheduler.dto.SchedulerResponse;
 import com.example.scheduler.entity.Scheduler;
 import com.example.scheduler.repository.SchedulerRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
