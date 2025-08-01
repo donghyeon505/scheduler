@@ -1,8 +1,12 @@
 package com.example.scheduler.service;
 
+import com.example.scheduler.dto.CommentResponse;
+import com.example.scheduler.dto.SchedulerCommentResponse;
 import com.example.scheduler.dto.SchedulerRequest;
 import com.example.scheduler.dto.SchedulerResponse;
+import com.example.scheduler.entity.Comment;
 import com.example.scheduler.entity.Scheduler;
+import com.example.scheduler.repository.CommentRepository;
 import com.example.scheduler.repository.SchedulerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +23,7 @@ import java.util.List;
 public class SchedulerService {
 
     private final SchedulerRepository schedulerRepository;
+    private final CommentRepository commentRepository;
 
     // 일정 등록
     @Transactional
@@ -60,13 +65,35 @@ public class SchedulerService {
 
     // 선택 일정 조회
     @Transactional (readOnly = true)
-    public SchedulerResponse findById(Long id) {
+    public SchedulerCommentResponse findById(Long id) {
 
         // 일정 찾기
         Scheduler schedule = find(id);
 
-        // 조회된 일정 반환
-        return toResponse(schedule);
+        // 일정 Response로 변환
+        SchedulerResponse schedules = toResponse(schedule);
+
+        // 댓글 조회 하기
+        List<Comment> comments = commentRepository.findAll();
+
+        // 응답 객체 리스트 초기화
+        List<CommentResponse> commentResponses = new ArrayList<>();
+
+        // 받은 정보를 Response 객체로 변환해서 저장 (해당 일정 아이디 값만)
+        for (Comment comment : comments) {
+            if (comment.getSchedulerId().equals(id)) {
+                commentResponses.add(new CommentResponse(
+                        comment.getComment(),
+                        comment.getWriter(),
+                        comment.getCreatedAt(),
+                        comment.getModifiedAt(),
+                        comment.getSchedulerId())
+                );
+            }
+        }
+
+        // 조회된 일정과 댓글 반환
+        return new SchedulerCommentResponse(schedules, commentResponses);
 
     }
 
