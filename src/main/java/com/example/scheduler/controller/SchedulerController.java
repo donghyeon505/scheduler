@@ -5,6 +5,7 @@ import com.example.scheduler.dto.SchedulerRequest;
 import com.example.scheduler.dto.SchedulerResponse;
 import com.example.scheduler.service.SchedulerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class SchedulerController {
 
     // 일정 등록
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public SchedulerResponse createSchedule(@RequestBody SchedulerRequest schedulerRequest) {
         return schedulerService.save(schedulerRequest);
     }
