@@ -77,7 +77,7 @@ public class SchedulerService {
         // 일정 Response로 변환
         SchedulerResponse schedules = toResponse(schedule);
 
-        // 댓글 조회 하기
+        // 댓글 조회 하기 ( schedulerId가 Id 값과 같을 때 )
         List<Comment> comments = commentRepository.findAllBySchedulerId(id);
 
         // 응답 객체 리스트 초기화
@@ -85,9 +85,7 @@ public class SchedulerService {
 
         // 받은 정보를 Response 객체로 변환해서 저장 (해당 일정 아이디 값만)
         for (Comment comment : comments) {
-            if (comment.getSchedulerId().equals(id)) {
                 commentResponses.add(toResponseComment(comment));
-            }
         }
 
         // 조회된 일정과 댓글 반환
