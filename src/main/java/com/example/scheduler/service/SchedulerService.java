@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -28,6 +27,11 @@ public class SchedulerService {
     // 일정 등록
     @Transactional
     public SchedulerResponse save(SchedulerRequest schedulerRequest) {
+
+        // 문자열 길이와 Null 값 체크
+        checkTitleContents(schedulerRequest);
+        checkWriter(schedulerRequest);
+        checkPassword(schedulerRequest);
 
         // scheduler 객체 생성
         Scheduler scheduler = new Scheduler(
@@ -82,13 +86,7 @@ public class SchedulerService {
         // 받은 정보를 Response 객체로 변환해서 저장 (해당 일정 아이디 값만)
         for (Comment comment : comments) {
             if (comment.getSchedulerId().equals(id)) {
-                commentResponses.add(new CommentResponse(
-                        comment.getComment(),
-                        comment.getWriter(),
-                        comment.getCreatedAt(),
-                        comment.getModifiedAt(),
-                        comment.getSchedulerId())
-                );
+                commentResponses.add(toResponseComment(comment));
             }
         }
 
@@ -98,18 +96,17 @@ public class SchedulerService {
 
     // 일정 수정
     @Transactional
-    public SchedulerResponse updateSchedule(@PathVariable Long id, SchedulerRequest schedulerRequest) {
+    public SchedulerResponse updateSchedule(Long id, SchedulerRequest schedulerRequest) {
+
+        // 문자열 길이와 Null 값 체크
+        checkTitleContents(schedulerRequest);
+        checkPassword(schedulerRequest);
 
         // 일정 찾기
         Scheduler schedule = find(id);
 
         // 비밀번호 체크
         checkPassword(schedulerRequest, schedule);
-
-        // 필요 값 체크
-        if (schedulerRequest.getTitle() == null || schedulerRequest.getContents() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다");
-        }
 
         // 일정 제목, 내용 수정
         schedule.setTitle(schedulerRequest.getTitle());
@@ -124,7 +121,10 @@ public class SchedulerService {
 
     // 일정 삭제
     @Transactional
-    public void delete(@PathVariable Long id, SchedulerRequest schedulerRequest) {
+    public void delete(Long id, SchedulerRequest schedulerRequest) {
+
+        // 비밀번호 Null 값 체크
+        checkPassword(schedulerRequest);
 
         // 일정 찾기
         Scheduler schedule = find(id);
@@ -151,6 +151,17 @@ public class SchedulerService {
         );
     }
 
+    // 댓글 정보 반환
+    private CommentResponse toResponseComment(Comment comment) {
+        return new CommentResponse(
+                comment.getComment(),
+                comment.getWriter(),
+                comment.getCreatedAt(),
+                comment.getModifiedAt(),
+                comment.getSchedulerId()
+        );
+    }
+
     // 일정 찾기 (null 값이면 NOT_FOUND)
     private Scheduler find(Long id) {
         return schedulerRepository.findById(id)
@@ -160,7 +171,46 @@ public class SchedulerService {
     // 비밀번호 체크 (값이 다르면 BAD_REQUEST)
     private void checkPassword(SchedulerRequest schedulerRequest, Scheduler schedule) {
         if (!schedulerRequest.getPassword().equals(schedule.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다");
+            throwNewBadRequest("비밀번호가 일치하지 않습니다");
         }
+    }
+
+    // 제목과 내용 체크
+    private void checkTitleContents(SchedulerRequest schedulerRequest) {
+        if (schedulerRequest.getTitle() == null || schedulerRequest.getTitle().isBlank()) {
+            throwNewBadRequest("제목은 필수입니다.");
+        }
+
+        if (schedulerRequest.getTitle().length() > 30) {
+            throwNewBadRequest("제목의 길이는 30자 이내여야 합니다.");
+        }
+
+        if (schedulerRequest.getContents() == null || schedulerRequest.getContents().isBlank()) {
+            throwNewBadRequest("내용은 필수입니다.");
+        }
+
+        if (schedulerRequest.getContents().length() > 200) {
+            throwNewBadRequest("내용의 길이는 200자 이내여야 합니다.");
+        }
+
+    }
+
+    // 작성자 체크
+    private void checkWriter(SchedulerRequest schedulerRequest) {
+        if (schedulerRequest.getWriter() == null || schedulerRequest.getWriter().isBlank()) {
+            throwNewBadRequest("작성자 이름은 필수입니다.");
+        }
+    }
+
+    // 비밀번호 체크
+    private void checkPassword(SchedulerRequest schedulerRequest) {
+        if (schedulerRequest.getPassword() == null || schedulerRequest.getPassword().isBlank()) {
+            throwNewBadRequest("비밀번호는 필수입니다.");
+        }
+    }
+
+    // BAD_REQUEST 오류 발생
+    private void throwNewBadRequest(String text) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, text);
     }
 }
