@@ -1,5 +1,6 @@
 package com.example.scheduler.controller;
 
+import com.example.scheduler.dto.SchedulerCommentResponse;
 import com.example.scheduler.dto.SchedulerRequest;
 import com.example.scheduler.dto.SchedulerResponse;
 import com.example.scheduler.service.SchedulerService;
@@ -28,7 +29,7 @@ public class SchedulerController {
 
     // 선택 일정 조회
     @GetMapping("/{id}")
-    public SchedulerResponse findById(@PathVariable Long id) {
+    public SchedulerCommentResponse findById(@PathVariable Long id) {
         return schedulerService.findById(id);
     }
 
