@@ -20,8 +20,12 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final SchedulerRepository schedulerRepository;
 
+    // 댓글 생성 기능
     @Transactional
     public CommentResponse addComment(@PathVariable Long id, @RequestBody CommentRequest commentRequest) {
+
+        // 문자열 길이와 Null 값 체크
+        checkComment(commentRequest);
 
         // 일정 찾기
         schedulerRepository.findById(id).
@@ -46,13 +50,44 @@ public class CommentService {
         Comment savedComment = commentRepository.save(comment);
 
         // 저장된 댓글 정보 반환 (비밀번호 제외, 해당 일정의 id만 반환)
-        return new CommentResponse(
-                savedComment.getComment(),
-                savedComment.getWriter(),
-                savedComment.getCreatedAt(),
-                savedComment.getModifiedAt(),
-                savedComment.getSchedulerId()
-        );
+        return toResponseComment(savedComment);
+    }
 
+
+    // ==== 헬퍼 메서드 ====
+
+    // Response 변환
+    private CommentResponse toResponseComment(Comment comment) {
+        return new CommentResponse(
+                comment.getComment(),
+                comment.getWriter(),
+                comment.getCreatedAt(),
+                comment.getModifiedAt(),
+                comment.getSchedulerId()
+        );
+    }
+
+    // 댓글, 작성자, 비밀번호 체크
+    private void checkComment(CommentRequest commentRequest) {
+        if (commentRequest.getComment() == null || commentRequest.getComment().isBlank()) {
+            throwNewBadRequest("댓글 내용은 필수입니다.");
+        }
+
+        if (commentRequest.getComment().length() > 100) {
+            throwNewBadRequest("댓글의 길이는 100자 이내입니다");
+        }
+
+        if (commentRequest.getWriter() == null || commentRequest.getWriter().isBlank()) {
+            throwNewBadRequest("작성자 이름은 필수입니다.");
+        }
+
+        if (commentRequest.getPassword() == null || commentRequest.getPassword().isBlank()) {
+            throwNewBadRequest("비밀번호는 필수입니다.");
+        }
+    }
+
+    // BAD_REQUEST 오류 발생
+    private void throwNewBadRequest(String text) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, text);
     }
 }
