@@ -74,7 +74,7 @@ public class SchedulerService {
         SchedulerResponse schedules = toResponse(schedule);
 
         // 댓글 조회 하기
-        List<Comment> comments = commentRepository.findAll();
+        List<Comment> comments = commentRepository.findAllBySchedulerId(id);
 
         // 응답 객체 리스트 초기화
         List<CommentResponse> commentResponses = new ArrayList<>();
@@ -94,7 +94,6 @@ public class SchedulerService {
 
         // 조회된 일정과 댓글 반환
         return new SchedulerCommentResponse(schedules, commentResponses);
-
     }
 
     // 일정 수정
