@@ -30,14 +30,14 @@ public class SchedulerService {
     public SchedulerResponse save(SchedulerRequest schedulerRequest) {
 
         // 문자열 길이와 Null 값 체크
-        checkTitleContents(schedulerRequest);
+        checkTitleContent(schedulerRequest);
         checkWriter(schedulerRequest);
         checkPassword(schedulerRequest);
 
         // scheduler 객체 생성
         Scheduler scheduler = new Scheduler(
                 schedulerRequest.getTitle(),
-                schedulerRequest.getContents(),
+                schedulerRequest.getContent(),
                 schedulerRequest.getWriter(),
                 schedulerRequest.getPassword()
         );
@@ -97,7 +97,7 @@ public class SchedulerService {
     public SchedulerResponse updateSchedule(Long id, SchedulerRequest schedulerRequest) {
 
         // 문자열 길이와 Null 값 체크
-        checkTitleContents(schedulerRequest);
+        checkTitleContent(schedulerRequest);
         checkPassword(schedulerRequest);
 
         // 일정 찾기
@@ -108,7 +108,7 @@ public class SchedulerService {
 
         // 일정 제목, 내용 수정
         schedule.setTitle(schedulerRequest.getTitle());
-        schedule.setContents(schedulerRequest.getContents());
+        schedule.setContent(schedulerRequest.getContent());
 
         // 수정된 값 DB에 반영
         schedulerRepository.flush();
@@ -142,7 +142,7 @@ public class SchedulerService {
         return new SchedulerResponse(
                 scheduler.getId(),
                 scheduler.getTitle(),
-                scheduler.getContents(),
+                scheduler.getContent(),
                 scheduler.getWriter(),
                 scheduler.getCreatedAt(),
                 scheduler.getModifiedAt()
@@ -193,7 +193,7 @@ public class SchedulerService {
     }
 
     // 제목과 내용 체크
-    private void checkTitleContents(SchedulerRequest schedulerRequest) {
+    private void checkTitleContent(SchedulerRequest schedulerRequest) {
         if (schedulerRequest.getTitle() == null || schedulerRequest.getTitle().isBlank()) {
             throwNewBadRequest("제목은 필수입니다.");
         }
@@ -202,11 +202,11 @@ public class SchedulerService {
             throwNewBadRequest("제목의 길이는 30자 이내여야 합니다.");
         }
 
-        if (schedulerRequest.getContents() == null || schedulerRequest.getContents().isBlank()) {
+        if (schedulerRequest.getContent() == null || schedulerRequest.getContent().isBlank()) {
             throwNewBadRequest("내용은 필수입니다.");
         }
 
-        if (schedulerRequest.getContents().length() > 200) {
+        if (schedulerRequest.getContent().length() > 200) {
             throwNewBadRequest("내용의 길이는 200자 이내여야 합니다.");
         }
 

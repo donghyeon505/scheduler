@@ -18,13 +18,13 @@ public class Scheduler extends BaseEntity {
     @Setter
     private String title;
     @Setter
-    private String contents;
+    private String content;
     private String writer;
     private String password;
 
     public Scheduler(String title, String contents, String writer, String password) {
         this.title = title;
-        this.contents = contents;
+        this.content = contents;
         this.writer = writer;
         this.password = password;
     }
