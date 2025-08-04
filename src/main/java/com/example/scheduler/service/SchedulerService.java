@@ -104,7 +104,7 @@ public class SchedulerService {
         Scheduler schedule = find(id);
 
         // 비밀번호 체크
-        checkPassword(schedulerRequest, schedule);
+        comparePassword(schedulerRequest, schedule);
 
         // 일정 제목, 내용 수정
         schedule.setTitle(schedulerRequest.getTitle());
@@ -128,7 +128,7 @@ public class SchedulerService {
         Scheduler schedule = find(id);
 
         // 비밀번호 체크
-        checkPassword(schedulerRequest, schedule);
+        comparePassword(schedulerRequest, schedule);
 
         // 해당 일정 삭제
         schedulerRepository.deleteById(id);
@@ -185,8 +185,8 @@ public class SchedulerService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일정을 찾을 수 없습니다"));
     }
 
-    // 비밀번호 체크 (값이 다르면 BAD_REQUEST)
-    private void checkPassword(SchedulerRequest schedulerRequest, Scheduler schedule) {
+    // 비밀번호 비교 (값이 다르면 BAD_REQUEST)
+    private void comparePassword(SchedulerRequest schedulerRequest, Scheduler schedule) {
         if (!schedulerRequest.getPassword().equals(schedule.getPassword())) {
             throwNewBadRequest("비밀번호가 일치하지 않습니다");
         }
