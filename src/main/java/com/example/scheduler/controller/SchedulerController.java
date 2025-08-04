@@ -25,8 +25,8 @@ public class SchedulerController {
     }
     // 일정 조회
     @GetMapping
-    public List<SchedulerResponse> findAll() {
-        return schedulerService.findAll();
+    public List<SchedulerResponse> findAll(@RequestParam(required = false) String writer) {
+        return schedulerService.findAll(writer);
     }
 
     // 선택 일정 조회

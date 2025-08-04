@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -49,23 +50,22 @@ public class SchedulerService {
     }
 
     // 일정 조회
-    @Transactional (readOnly = true)
-    public List<SchedulerResponse> findAll() {
+      @Transactional (readOnly = true)
+      public List<SchedulerResponse> findAll(String writer) {
 
-        // Repository 에서 정보 조회
-        List<Scheduler> schedules = schedulerRepository.findAll();
+          // 리스트 찾기
+          List<Scheduler> schedulers = schedulerRepository.findAll();
 
-        // 응답 객체 리스트 초기화
-        List<SchedulerResponse> schedulerResponses = new ArrayList<>();
+          // 내림차순 정렬
+          schedulers.sort(Comparator.comparing(Scheduler::getModifiedAt).reversed());
 
-        // 받은 정보를 Response 객체로 변환해서 저장
-        for (Scheduler scheduler : schedules) {
-            schedulerResponses.add(toResponse(scheduler));
-        }
+          // 리스트에 값넣기
+          List<SchedulerResponse> schedulerResponses;
+          schedulerResponses = toResponseList(schedulers, writer);
 
-        // 조회(변환)된 리스트 반환
-        return schedulerResponses;
-    }
+          // 반환
+          return schedulerResponses;
+      }
 
     // 선택 일정 조회
     @Transactional (readOnly = true)
@@ -158,6 +158,25 @@ public class SchedulerService {
                 comment.getModifiedAt(),
                 comment.getSchedulerId()
         );
+    }
+
+    // 일정 조회 리스트 반환 메서드
+    private List<SchedulerResponse> toResponseList(List<Scheduler> schedulers, String writer) {
+        List<SchedulerResponse> schedulerResponses = new ArrayList<>();
+
+        if (writer == null) {
+            for (Scheduler scheduler : schedulers) {
+                schedulerResponses.add(toResponse(scheduler));
+            }
+        } else {
+            for (Scheduler scheduler : schedulers) {
+                if  (scheduler.getWriter().equals(writer)) {
+                    schedulerResponses.add(toResponse(scheduler));
+                }
+            }
+        }
+
+        return schedulerResponses;
     }
 
     // 일정 찾기 (null 값이면 NOT_FOUND)
